@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Localiza</title>
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+	<div class="container">
+		<header class="introduction">
+			<h1 class="title">Localiza</h1>
+			<h3 class="definition">Busca CEP e Endereços com a <a href="https://servicodados.ibge.gov.br/api/docs/localidades?versao=1" target="_blank">API de localidades do IBGE</a> e o <a href="https://viacep.com.br/" target="_blank">webservice ViaCEP</a></h3>
+		</header>
+
+		<hr class="division">
+
+		<section>
+			<article>
+				<h5 class="subtitle">Pesquisar por CEP</h5>
+				<p class="description">Obtenha informações da localidade por meio do CEP</p>
+				
+				<label class="label-input">CEP: </label>
+				<p class="info">(somente números)</p>
+				<input type="text" placeholder="Digite seu CEP" class="input" id="zipCode">
+				<p class="error">&nbsp;</p>
+
+				<button type="button" class="btn-search" id="SearchByZipCode">Buscar Endereço</button>
+
+				<aside class="panel zipCodePanel">
+					<!--<p class="zip-code"><span>CEP:</span> 01.001-000</p>
+					<p><span>UF:</span> SP</p>
+					<p><span>Localidade:</span> São Paulo</p>
+					<p><span>Logradouro:</span> Praça da Sé</p>
+					<p><span>Bairro:</span> Sé</p>
+					<p><span>Complemento:</span> lado ímpar</p>-->
+				</aside>
+			</article>
+
+			<hr class="division">
+
+			<article>
+				<h5 class="subtitle">Pesquisar por Endereço</h5>
+				<p class="description">Não sabe seu CEP? Infome seu endereço e seu problema será resolvido!</p>
+
+				<label class="label-input">Estado: </label>
+				<select class="input" id="state">
+					<option></option>
+				</select>
+				<p class="error">&nbsp;</p>
+
+				<label class="label-input">Cidade: </label>
+				<select class="input" id="city">
+					<option></option>
+				</select>
+				<p class="error">&nbsp;</p>
+
+				<label class="label-input">Logradouro: </label>
+				<p class="info">(praça, avenida, jardim, parque, largo, rua...)</p>
+				<input type="text" placeholder="No mínimo 3 letras" class="input" id="publicPlace">
+				<p class="error">&nbsp;</p>
+				
+				<button type="button" id="SearchByAddress" class="btn-search">Buscar CEP</button>
+
+				<aside class="panel">
+					<section class="addressPanel">
+						<!--<div class="address">
+							<p><span>CEP:</span> 57.312-520</p>
+							<p><span>Logradouro:</span> Rua Domingos Barbosa da Silva</p>
+							<p><span>Bairro:</span> Alto do Cruzeiro</p>
+						</div>-->
+					</section>
+
+					<footer class="pagination">
+						<!--<p class="index selected" data-index="1">1</p>
+						<p class="index" data-index="2">2</p>
+						<p class="index" data-index="3">3</p>-->
+					</footer>
+				</aside>
+			</article>
+		</section>
+
+		<footer class="footer">
+			<p class="credits">Desenvolvido por <a href="https://github.com/filipealvess" target="_blank">Filipe Alves</a></p>
+		</footer>
+	</div>
+
+	<script src="script.js"></script>
+</body>
+</html>
