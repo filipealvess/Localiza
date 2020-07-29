@@ -8,8 +8,8 @@ Permitiu a busca por estados de todo o Brasil e, consequentemente, de seus munic
 
 ### Webservice [ViaCEP](https://viacep.com.br)
 Foi utilizado em duas situações:  
-1) Para a consulta do _CEP_, necessitando a passagem de **UF, Estado e Logradouro**  
-2) Para a consulta de _endereços_, sendo necessário o **CEP**
+1) Para a consulta do **CEP**, necessitando a passagem de _UF, Estado e Logradouro_  
+2) Para a consulta de **endereços**, sendo necessário o _CEP_
 
 # 🛠 Tecnologias
 - HTML
