@@ -2,6 +2,7 @@ const inputZipCode = document.querySelector('#zipCode');
 const inputPublicPlace = document.querySelector('#publicPlace');
 const selectState = document.querySelector('#state');
 const selectCity = document.querySelector('#city');
+const loading = document.querySelector('.loading');
 const btnSearchByZipCode = document.querySelector('#SearchByZipCode');
 const btnSearchByAddress = document.querySelector('#SearchByAddress');
 const zipCodePanel = document.querySelector('.zipCodePanel');
@@ -11,9 +12,6 @@ const pagination = document.querySelector('.pagination');
 const statesData = [];
 
 let addressData = [];
-//let errors = [];
-
-
 
 /* REQUISITIONS */
 
@@ -28,8 +26,6 @@ const getCities = async id => {
 	const response = await fetch(url);
 	return await response.json();
 }
-
-
 
 /* CHECKING FUNCTIONS */
 
@@ -48,21 +44,11 @@ const confirmAddress = async (...inputs) => {
 const checkInput = (checkType, inputs) => {
 	let ok = true;
 
-	//errors.length = 0;
-
 	if(checkType === 'isEqualToTen') {
 		if(inputs.length === 0) {
 			ok = false;
-			/*errors.push({
-				input: inputZipCode,
-				error: '* Preencha este campo'
-			});*/
 		} else if(inputs.length !== 10) {
 			ok = false;
-			/*errors.push({
-				input: inputZipCode,
-				error: '* Formato inválido'
-			});*/
 		}
 	}
 
@@ -79,28 +65,38 @@ const checkInput = (checkType, inputs) => {
 	return ok;
 };
 
-
-
 /* LOADING FUNCTIONS */
 
 const loadStates = async () => {
 	const states = await getStates();
-	
-	states.forEach(state => {
-		const option = `<option>${state.nome}</option>`;
-		selectState.innerHTML += option;
+	const stateNames = [];
 
+	states.forEach(state => {
 		statesData.push(state);
+		stateNames.push(state.nome);
+	});
+
+	order(stateNames);
+	
+	stateNames.forEach(name => {
+		const option = `<option>${name}</option>`;
+		selectState.innerHTML += option;
 	});
 };
 
 const loadCities = () => {
 	const stateText = event.target.value;
+	const cityNames = [];
 	
-	if(!stateText) return;
+	if(!stateText) {
+		selectCity.innerHTML = '<option></option>';
+		return;
+	}
 
 	statesData.forEach(async ({ id, nome }) => {
 		if(nome === stateText) {
+			loading.classList.add('active');
+
 			const cities = await getCities(id);
 
 			changePanelDisplay(addressPanel.parentNode, false);
@@ -108,9 +104,17 @@ const loadCities = () => {
 			selectCity.innerHTML = '<option></option>';
 
 			cities.forEach(({ nome }) => {
-				const option = `<option>${nome}</option>`;
+				cityNames.push(nome);
+			});
+
+			order(cityNames);
+
+			cityNames.forEach(cityName => {
+				const option = `<option>${cityName}</option>`;
 				selectCity.innerHTML += option;
 			});
+
+			loading.classList.remove('active');
 		}
 	});
 };
@@ -118,12 +122,6 @@ const loadCities = () => {
 
 
 /* DISPLAY FUNCTIONS */
-
-/*const showErrorMessage = () => {
-	errors.forEach(({ error, input }) => {
-		input.nextElementSibling.innerHTML = error;
-	});
-};*/
 
 const showPageCounters = quantity => {
 	clearElement(pagination);
@@ -192,23 +190,12 @@ const searchByZipCode = async () => {
 
 	const confirmation = await confirmZipCode(zipCode.replace(/\D/g, ''));
 
-	/*errors = [{
-		input: inputZipCode,
-		error: '&nbsp;'
-	}];*/
-
 	if(confirmation.erro) {
-		/*errors.push({
-			input: inputZipCode,
-			error: '* CEP não foi encontrado'
-		});*/
 		changePanelDisplay(zipCodePanel, false);
 	} else {
 		showZipCodeData(confirmation);
 		changePanelDisplay(zipCodePanel, true);
 	}
-	
-	//showErrorMessage();
 };
 
 const searchByAddress = () => {
@@ -239,6 +226,39 @@ const searchByAddress = () => {
 };
 
 
+
+const order = array => {
+	const modifiedArray = [];
+
+	array.forEach(item => {
+		modifiedArray.push({
+			before: item,
+			after: item.replace(/^[ÁÃÂÀ]/i, 'A')
+				.replace(/^[ÉÊÈ]/i, 'E')
+				.replace(/^[ÍÎÌ]/i, 'I')
+				.replace(/^[ÓÕÔÒ]/i, 'O')
+				.replace(/^[ÚÙÛ]/i, 'U')
+		});
+	});
+
+	array.forEach((item, index) => {
+		modifiedArray.forEach(({ before, after }) => {
+			if(item === before) {
+				array[index] = after;
+			}
+		});
+	});
+
+	array.sort();
+
+	array.forEach((item, index) => {
+		modifiedArray.forEach(({ before, after }) => {
+			if(item === after) {
+				array[index] = before;
+			}
+		});
+	});
+};
 
 const panelFill = ({ start, end, quantityPages }) => {
 	for(let i = start; i < end; i++) {
@@ -308,16 +328,14 @@ const clearElement = (...elements) => {
 	elements.forEach(element => element.innerHTML = '');
 };
 
-const applyMask = event => {
-	const element = event.target ? event.target.value : event;
+const applyMask = element => {
+	const newElement = element.target ? element.target.value : element;
 
-	return element.replace(/\D/g, '')
+	return newElement.replace(/\D/g, '')
 		.replace(/(\d{2})(\d)/, '$1.$2')
 		.replace(/(\d{3})(\d)/, '$1-$2')
 		.replace(/(-\d{3})\d+?$/, '$1');
 };
-
-
 
 /* EVENT LISTENERS */
 
@@ -328,12 +346,3 @@ selectState.addEventListener('change', loadCities);
 btnSearchByZipCode.addEventListener('click', searchByZipCode);
 btnSearchByAddress.addEventListener('click', searchByAddress);
 window.addEventListener('load', loadStates);
-
-/*
-
-[x] função pra limpar os containers (pagination, selectCity...)
-[x] alternância entre as páginas (Pesquisa por Endereço)
-[ ] ordenar alfabeticamente os options
-[ ] mensagens de erro na Pesquisa por Endereço
-
-*/

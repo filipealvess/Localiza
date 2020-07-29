@@ -5,7 +5,7 @@
 	box-sizing: border-box;
 }
 
-body { font-size: 2em; background-color: #efefef; }
+body { font-size: 2em; background-color: #efefef;  }
 a { color: #353535; transition: color .2s; }
 a:hover { color: #000; }
 article { display: flex; flex-direction: column; }
@@ -146,6 +146,31 @@ article { display: flex; flex-direction: column; }
 	font-weight: bold;
 	font-family: 'Poppins', sans-serif;
 	text-align: center;
+}
+
+/* LOADING */
+
+.loading {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.loading.active::before {
+	content: '';
+	position: absolute;
+	width: 0.7em;
+	height: 0.7em;
+	border-radius: 50%;
+	border: 2.5px solid transparent;
+	border-left-color: black;
+	animation: spin .75s linear infinite;
+	top: 0.2em;
+}
+
+@keyframes spin {
+	to { transform: rotate(360deg); }
 }
 
 /* MEDIA QUERY */
