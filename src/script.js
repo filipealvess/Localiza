@@ -2,7 +2,7 @@ const inputZipCode = document.querySelector('#zipCode');
 const inputPublicPlace = document.querySelector('#publicPlace');
 const selectState = document.querySelector('#state');
 const selectCity = document.querySelector('#city');
-const loading = document.querySelector('.loading');
+const loading = selectCity.previousElementSibling;
 const btnSearchByZipCode = document.querySelector('#SearchByZipCode');
 const btnSearchByAddress = document.querySelector('#SearchByAddress');
 const zipCodePanel = document.querySelector('.zipCodePanel');
@@ -10,8 +10,76 @@ const addressPanel = document.querySelector('.addressPanel');
 const pagination = document.querySelector('.pagination');
 
 const statesData = [];
-
 let addressData = [];
+
+const errors = {
+	input: [],
+	message: [],
+	add(arrayInputs, arrayMessages) {
+		arrayInputs.forEach((input, index) => {
+			errors.input.push(input);
+			errors.message.push(arrayMessages[index]);
+		});
+	},
+	removeElementError(...elements) {
+		const indexes = [];
+
+		errors.input.forEach((input, index) => {
+			elements.forEach(element => {
+				if(element === input) {
+					indexes.push(index);
+					errors.clearElement(element);
+				}
+			});
+		});
+
+
+		const start = indexes.length - 1;
+
+		for(let i = start; i >= 0; i--) {
+			errors.input.splice(indexes[i], 1);
+			errors.message.splice(indexes[i], 1);
+		}
+	},
+	clearElement(...elements) {
+		elements.forEach(element => {
+			element.nextElementSibling.innerHTML = '&nbsp;';
+		});
+	},
+	show() {
+		errors.input.forEach((input, index) => {
+			input.nextElementSibling.innerText = errors.message[index];
+		});
+	}
+};
+
+const check = {
+	isEmpty(...inputs) {
+		let isEmpty = false;
+
+		inputs.forEach(input => {
+			const length = input.value.length;
+			const empty = length === 0 ? true : false;
+			
+			if(empty) {
+				errors.add([input], ['* Preencha este campo']);
+				isEmpty = true;
+			}
+		});
+
+		return isEmpty;
+	},
+	smallerThan(input, min) {
+		const length = input.value.length;
+		const smallerThan = length < min ? true : false;
+
+		if(smallerThan) {
+			errors.add([input], ['* Formato inválido']);
+		}
+
+		return smallerThan;
+	}
+};
 
 /* REQUISITIONS */
 
@@ -41,30 +109,6 @@ const confirmAddress = async (...inputs) => {
 	return response.json();
 };
 
-const checkInput = (checkType, inputs) => {
-	let ok = true;
-
-	if(checkType === 'isEqualToTen') {
-		if(inputs.length === 0) {
-			ok = false;
-		} else if(inputs.length !== 10) {
-			ok = false;
-		}
-	}
-
-	if(checkType === 'non-zero') {
-		inputs.forEach((input, index) => {
-			if(input.length === 0) {
-				ok = false;
-			} else if(index === 2 && input.length < 3) {
-				ok = false;
-			}
-		});
-	}
-	
-	return ok;
-};
-
 /* LOADING FUNCTIONS */
 
 const loadStates = async () => {
@@ -87,6 +131,8 @@ const loadStates = async () => {
 const loadCities = () => {
 	const stateText = event.target.value;
 	const cityNames = [];
+
+	errors.removeElementError(selectCity, selectState);
 	
 	if(!stateText) {
 		selectCity.innerHTML = '<option></option>';
@@ -95,7 +141,7 @@ const loadCities = () => {
 
 	statesData.forEach(async ({ id, nome }) => {
 		if(nome === stateText) {
-			loading.classList.add('active');
+			loading.classList.add('loading');
 
 			const cities = await getCities(id);
 
@@ -114,7 +160,7 @@ const loadCities = () => {
 				selectCity.innerHTML += option;
 			});
 
-			loading.classList.remove('active');
+			loading.classList.remove('loading');
 		}
 	});
 };
@@ -179,19 +225,23 @@ const showAddressData = data => {
 /* SEARCH FUNCTIONS */
 
 const searchByZipCode = async () => {
-	const zipCode = inputZipCode.value;
-	const ok = checkInput('isEqualToTen', zipCode);
+	errors.removeElementError(inputZipCode);
+	const smallerThan = check.smallerThan(inputZipCode, 10);
+	const isEmpty = check.isEmpty(inputZipCode);
+	const ok = !isEmpty && !smallerThan ? true : false;
 	
 	if(!ok) {
 		changePanelDisplay(zipCodePanel, false);
-		//showErrorMessage();
+		errors.show();
 		return;
 	};
 
-	const confirmation = await confirmZipCode(zipCode.replace(/\D/g, ''));
+	const confirmation = await confirmZipCode(inputZipCode.value.replace(/\D/g, ''));
 
 	if(confirmation.erro) {
 		changePanelDisplay(zipCodePanel, false);
+		errors.add([inputZipCode], ['* CEP inexistente']);
+		errors.show();
 	} else {
 		showZipCodeData(confirmation);
 		changePanelDisplay(zipCodePanel, true);
@@ -199,19 +249,23 @@ const searchByZipCode = async () => {
 };
 
 const searchByAddress = () => {
-	const stateName = selectState.options[selectState.selectedIndex].value;
-	const cityName = selectCity.options[selectCity.selectedIndex].value;
-	const publicPlaceName = inputPublicPlace.value
-	const inputs = [stateName, cityName, publicPlaceName];
+	errors.removeElementError(selectState, selectCity, inputPublicPlace);
 
-	const ok = checkInput('non-zero', inputs);
+	const smallerThan = check.smallerThan(inputPublicPlace, 3);
+	const isEmpty = check.isEmpty(selectState, selectCity, inputPublicPlace);
+	const ok = !isEmpty && !smallerThan ? true : false;
 
 	if(!ok) {
 		changePanelDisplay(addressPanel.parentNode, false);
+		errors.show();
 		return;
 	}
 
 	statesData.forEach(async ({ nome, sigla }) => {
+		const stateName = selectState.value;
+		const cityName = selectCity.value;
+		const publicPlaceName = inputPublicPlace.value;
+
 		if(stateName === nome) {
 			const confirmation = await confirmAddress(sigla, cityName, publicPlaceName);
 			
@@ -225,7 +279,7 @@ const searchByAddress = () => {
 	});
 };
 
-
+/* GENERAL FUNCTIONS */
 
 const order = array => {
 	const modifiedArray = [];
@@ -327,6 +381,7 @@ const changePage = event => {
 const clearElement = (...elements) => {
 	elements.forEach(element => element.innerHTML = '');
 };
+
 
 const applyMask = element => {
 	const newElement = element.target ? element.target.value : element;

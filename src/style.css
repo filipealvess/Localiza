@@ -16,6 +16,7 @@ article { display: flex; flex-direction: column; }
 
 .introduction { margin: 70px auto }
 
+
 .title {
 	padding: 10px 0;
 	text-align: center;
@@ -58,6 +59,7 @@ article { display: flex; flex-direction: column; }
 }
 
 .label-input {
+	position: relative;
 	font-size: 0.6em;
 	font-family: 'Montserrat', sans-serif;
 	font-weight: 500;
@@ -150,14 +152,7 @@ article { display: flex; flex-direction: column; }
 
 /* LOADING */
 
-.loading {
-	position: relative;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-.loading.active::before {
+.loading::before {
 	content: '';
 	position: absolute;
 	width: 0.7em;
@@ -166,7 +161,8 @@ article { display: flex; flex-direction: column; }
 	border: 2.5px solid transparent;
 	border-left-color: black;
 	animation: spin .75s linear infinite;
-	top: 0.2em;
+	top: calc(150% + 0.1em);
+	left: 0.5em;
 }
 
 @keyframes spin {
