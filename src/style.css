@@ -27,7 +27,8 @@ article { display: flex; flex-direction: column; }
 .definition {
 	margin: 0 auto;
 	text-align: center;
-	width: 80%;
+	width: 90%;
+	max-width: 450px;
 	color: #353535;
 	font-size: 0.6em;
 	font-family: 'Poppins', sans-serif;
@@ -73,6 +74,7 @@ article { display: flex; flex-direction: column; }
 	margin: 5px auto 0px auto;
 	outline: none;
 	font-family: 'Poppins', sans-serif;
+	background-color: #fff;
 }
 
 .btn-search {

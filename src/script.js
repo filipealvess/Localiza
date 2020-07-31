@@ -326,6 +326,8 @@ const panelFill = ({ start, end, quantityPages }) => {
 
 		addressPanel.innerHTML += panelData;
 	}
+
+	changePanelDisplay(addressPanel.parentNode, true);
 };
 
 const calcPageItems = index => {
