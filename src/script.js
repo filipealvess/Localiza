@@ -88,7 +88,7 @@ const masks = {
   		.replace(/(-\d{3})\d+?$/, '$1');
 	},
 	clearURLchars(chars) {
-		return chars.replace(/[^0-9a-z' ']/ig, '');
+		return chars.replace(/[?:="*$#/]/g, '');
 	}
 };
 
@@ -103,12 +103,12 @@ const requisitions = {
     const response = await fetch(url);
     return await response.json();
   },
-  async getZipCode(zipCode) {
+  async getAddress(zipCode) {
     const url = `https://viacep.com.br/ws/${zipCode}/json/`;
     const response = await fetch(url);
     return response.json();
   },
-  async getAddress(uf, city, publicPlace) {
+  async getZipCode(uf, city, publicPlace) {
     const url = `https://viacep.com.br/ws/${uf}/${city}/${publicPlace}/json/`;
     const response = await fetch(url);
     return response.json();
@@ -198,7 +198,7 @@ const show = {
     zipCodePanel.innerHTML = panelData;
   },
   addressData(data) {
-    addressData = [];
+    addressData.length = 0;
 
     data.forEach(({cep, logradouro, bairro}) => {
       addressData.push({
@@ -231,7 +231,7 @@ const search = {
       return;
     };
 
-    const confirmation = await requisitions.getZipCode(inputZipCode.value.replace(/\D/g, ''));
+    const confirmation = await requisitions.getAddress(inputZipCode.value.replace(/\D/g, ''));
 
     if(confirmation.erro) {
       change.panelDisplay(zipCodePanel, false);
@@ -261,7 +261,7 @@ const search = {
       const publicPlaceName = inputPublicPlace.value;
 
       if(stateName === nome) {
-        const confirmation = await requisitions.getAddress(sigla, cityName, publicPlaceName);
+        const confirmation = await requisitions.getZipCode(sigla, cityName, publicPlaceName);
         
         if(confirmation.length) {
           show.addressData(confirmation);
